@@ -33,4 +33,6 @@
 *.out
 *.app
 
-*/build/*
+build/*
+common/
+mesh/
