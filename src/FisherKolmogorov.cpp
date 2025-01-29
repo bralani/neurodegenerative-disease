@@ -82,6 +82,10 @@ FisherKolmogorov::setup()
     solution.reinit(locally_owned_dofs, locally_relevant_dofs, MPI_COMM_WORLD);
     solution_old = solution;
   }
+
+  Point<dim> mass_center;
+  for(int i = 0; i < dim; i++) mass_center[i] = 0.5;
+  this->diffusion_tensor.set_mass_center(mass_center);
 }
 
 void
@@ -131,7 +135,7 @@ FisherKolmogorov::assemble_system()
           // Evaluate coefficients on this quadrature node.
           // const double mu_0_loc = mu_0.value(fe_values.quadrature_point(q));
           // const double mu_1_loc = mu_1.value(fe_values.quadrature_point(q));
-          const Tensor<2,DIM> diff_loc = diffusion_tensor.value(fe_values.quadrature_point(q));
+          const Tensor<2,dim> diff_loc = diffusion_tensor.value(fe_values.quadrature_point(q));
           const double f_loc =
             forcing_term.value(fe_values.quadrature_point(q));
 
@@ -205,28 +209,6 @@ FisherKolmogorov::assemble_system()
 
   jacobian_matrix.compress(VectorOperation::add);
   residual_vector.compress(VectorOperation::add);
-
-  // We apply Dirichlet boundary conditions.
-  // The linear system solution is delta, which is the difference between
-  // u_{n+1}^{(k+1)} and u_{n+1}^{(k)}. Both must satisfy the same Dirichlet
-  // boundary conditions: therefore, on the boundary, delta = u_{n+1}^{(k+1)} -
-  // u_{n+1}^{(k+1)} = 0. We impose homogeneous Dirichlet BCs.
-  {
-    std::map<types::global_dof_index, double> boundary_values;
-
-    std::map<types::boundary_id, const Function<dim> *> boundary_functions;
-    Functions::ZeroFunction<dim>                        zero_function;
-
-    for (unsigned int i = 0; i < 6; ++i)
-      boundary_functions[i] = &zero_function;
-
-    VectorTools::interpolate_boundary_values(dof_handler,
-                                             boundary_functions,
-                                             boundary_values);
-
-    MatrixTools::apply_boundary_values(
-      boundary_values, jacobian_matrix, delta_owned, residual_vector, false);
-  }
 }
 
 void
@@ -234,13 +216,14 @@ FisherKolmogorov::solve_linear_system()
 {
   SolverControl solver_control(1000, 1e-6 * residual_vector.l2_norm());
 
-  SolverCG<TrilinosWrappers::MPI::Vector> solver(solver_control);
+  //SolverCG<TrilinosWrappers::MPI::Vector> solver(solver_control);
+  SolverGMRES<TrilinosWrappers::MPI::Vector> solver(solver_control);
   TrilinosWrappers::PreconditionSSOR      preconditioner;
   preconditioner.initialize(
     jacobian_matrix, TrilinosWrappers::PreconditionSSOR::AdditionalData(1.0));
 
   solver.solve(jacobian_matrix, delta_owned, residual_vector, preconditioner);
-  pcout << "  " << solver_control.last_step() << " CG iterations" << std::endl;
+  pcout << "  " << solver_control.last_step() << " GMRES iterations" << std::endl;
 }
 
 void
@@ -251,24 +234,6 @@ FisherKolmogorov::solve_newton()
 
   unsigned int n_iter        = 0;
   double       residual_norm = residual_tolerance + 1;
-
-  // We apply the boundary conditions to the initial guess (which is stored in
-  // solution_owned and solution).
-  {
-    IndexSet dirichlet_dofs = DoFTools::extract_boundary_dofs(dof_handler);
-    dirichlet_dofs          = dirichlet_dofs & dof_handler.locally_owned_dofs();
-
-    function_g.set_time(time);
-
-    TrilinosWrappers::MPI::Vector vector_dirichlet(solution_owned);
-    VectorTools::interpolate(dof_handler, function_g, vector_dirichlet);
-
-    for (const auto &idx : dirichlet_dofs)
-      solution_owned[idx] = vector_dirichlet[idx];
-
-    solution_owned.compress(VectorOperation::insert);
-    solution = solution_owned;
-  }
 
   while (n_iter < n_max_iters && residual_norm > residual_tolerance)
     {

@@ -16,6 +16,7 @@
 #include <deal.II/fe/mapping_fe.h>
 
 #include <deal.II/grid/grid_in.h>
+#include <deal.II/grid/grid_tools.h>
 
 #include <deal.II/lac/solver_cg.h>
 #include <deal.II/lac/trilinos_precondition.h>
@@ -24,6 +25,8 @@
 #include <deal.II/numerics/data_out.h>
 #include <deal.II/numerics/matrix_tools.h>
 #include <deal.II/numerics/vector_tools.h>
+
+#include "DiffusionTensor.hpp"
 
 #include <fstream>
 #include <iostream>
@@ -52,12 +55,21 @@ public:
   // Function for initial conditions.
   class FunctionU0 : public Function<dim>
   {
+  private:
+    Point<dim> _mass_center;
   public:
+    // FunctionU0() : Function<dim>() {
+    //   _
+    // }
+    void set_mass_center(const Point<dim>&p) {
+      _mass_center = p;
+    }
+
     virtual double
-    value(const Point<dim> & /*p*/,
+    value(const Point<dim> & p,
           const unsigned int /*component*/ = 0) const override
     {
-      if(p.distance(mass_center)<1e-4) return 0.1;
+      if(p.distance(_mass_center)<1e-4) return 0.1;
       return 0.0;
     }
   };
@@ -68,7 +80,8 @@ public:
                 const unsigned int &r_,
                 const double       &T_,
                 const double       &deltat_,
-                const DiffusionTensor& diffusion_tensor)
+                DiffusionTensor<dim>& diffusion_tensor,
+                const double alpha_)
     : mpi_size(Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD))
     , mpi_rank(Utilities::MPI::this_mpi_process(MPI_COMM_WORLD))
     , pcout(std::cout, mpi_rank == 0)
@@ -78,10 +91,8 @@ public:
     , deltat(deltat_)
     , mesh(MPI_COMM_WORLD)
     , diffusion_tensor(diffusion_tensor)
-    , alpha
-  {
-    for(int i = 0; i < DIM; i++) mass_center[i] = 0;
-  }
+    , alpha(alpha_)
+  {}
 
   // Initialization.
   void
@@ -123,9 +134,6 @@ protected:
 
   // Forcing term.
   ForcingTerm forcing_term;
-
-  // Dirichlet boundary conditions.
-  FunctionG function_g;
 
   // Initial conditions.
   FunctionU0 u_0;
@@ -184,9 +192,7 @@ protected:
   TrilinosWrappers::MPI::Vector solution_old;
 
 private:
-  const DiffusionTensor& diffusion_tensor;
-
-  Point<DIM> mass_center; 
+  DiffusionTensor<dim>& diffusion_tensor;
   
   const double alpha;
 };

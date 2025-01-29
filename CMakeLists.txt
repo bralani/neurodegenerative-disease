@@ -35,7 +35,12 @@ deal_ii_initialize_cached_variables()
 # Add useful compiler flags.
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wfloat-conversion -Wmissing-braces -Wnon-virtual-dtor")
 
+set(SOURCES
+    src/main.cpp
+    src/FisherKolmogorov.cpp
+    src/DiffusionTensor.hpp
+)
 
-#add_executable(ngd src/main.cpp src/Poisson1D.cpp)
-add_executable(ngd src/main.cpp)
+add_executable(ngd ${SOURCES})
 deal_ii_setup_target(ngd)
+# 
