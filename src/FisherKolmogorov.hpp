@@ -69,7 +69,8 @@ public:
     value(const Point<dim> & p,
           const unsigned int /*component*/ = 0) const override
     {
-      if(p.distance(_mass_center)<1e-4) return 0.1;
+      //return p.norm();
+      if(p.distance(_mass_center)<0.05) return 1;
       return 0.0;
     }
   };

@@ -84,8 +84,17 @@ FisherKolmogorov::setup()
   }
 
   Point<dim> mass_center;
-  for(int i = 0; i < dim; i++) mass_center[i] = 0.5;
+  //for(int i = 0; i < dim; i++) mass_center[i] = 0.5;
+  mass_center[0]=0;
+  mass_center[1]=0;
+  mass_center[2]=0;
   this->diffusion_tensor.set_mass_center(mass_center);
+  Point<dim> radial_center;
+  //for(int i = 0; i < dim; i++) mass_center[i] = 0.5;
+  radial_center[0]=0;
+  radial_center[1]=0.4;
+  radial_center[2]=-0.2;
+  this->u_0.set_mass_center(radial_center);
 }
 
 void
