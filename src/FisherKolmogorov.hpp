@@ -55,6 +55,10 @@ public:
   // Function for initial conditions.
   class FunctionU0 : public Function<dim>
   {
+
+  static constexpr double ray_max = 0.1;
+  static constexpr double concentration = 1.0;
+
   public:
 
     FunctionU0(const Point<dim> &p) : Function<dim>(), _mass_center(p) {}
@@ -63,8 +67,11 @@ public:
     value(const Point<dim> & p,
           const unsigned int /*component*/ = 0) const override
     {
-      //return p.norm();
-      if(p.distance(_mass_center)<0.05) return 1;
+      double dist = p.distance(_mass_center);
+
+      if(dist < ray_max) 
+        return ((ray_max - dist) / ray_max) * concentration;
+
       return 0.0;
     }
   private:
