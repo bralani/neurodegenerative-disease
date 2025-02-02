@@ -55,15 +55,9 @@ public:
   // Function for initial conditions.
   class FunctionU0 : public Function<dim>
   {
-  private:
-    Point<dim> _mass_center;
   public:
-    // FunctionU0() : Function<dim>() {
-    //   _
-    // }
-    void set_mass_center(const Point<dim>&p) {
-      _mass_center = p;
-    }
+
+    FunctionU0(const Point<dim> &p) : Function<dim>(), _mass_center(p) {}
 
     virtual double
     value(const Point<dim> & p,
@@ -73,6 +67,8 @@ public:
       if(p.distance(_mass_center)<0.05) return 1;
       return 0.0;
     }
+  private:
+    Point<dim> _mass_center;
   };
 
   // Constructor. We provide the final time, time step Delta t and theta method
@@ -82,7 +78,8 @@ public:
                 const double       &T_,
                 const double       &deltat_,
                 DiffusionTensor<dim>& diffusion_tensor,
-                const double alpha_)
+                const double alpha_,
+                const Point<dim> &mass_center)
     : mpi_size(Utilities::MPI::n_mpi_processes(MPI_COMM_WORLD))
     , mpi_rank(Utilities::MPI::this_mpi_process(MPI_COMM_WORLD))
     , pcout(std::cout, mpi_rank == 0)
@@ -93,6 +90,7 @@ public:
     , mesh(MPI_COMM_WORLD)
     , diffusion_tensor(diffusion_tensor)
     , alpha(alpha_)
+    , u_0(mass_center)
   {}
 
   // Initialization.

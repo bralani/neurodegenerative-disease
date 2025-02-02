@@ -36,8 +36,6 @@ class DiffusionTensor : public TensorFunction<2, DIM> {
 public:
     DiffusionTensor(double dext, double daxn) : dext(dext), daxn(daxn), identity(unit_symmetric_tensor<DIM>()) {}
 
-    virtual void set_mass_center(const Point<DIM>& /*_mass_center*/) {}
-
     Tensor<2, DIM> value(const Point<DIM> &p) const override {
         return dext*identity + daxn*computeNxN(p);
     }
@@ -58,24 +56,21 @@ private:
 template <unsigned int DIM>
 class RadialDiffusionTensor : public DiffusionTensor<DIM> {
 public:
-    RadialDiffusionTensor(double dext, double daxn) : 
-        DiffusionTensor<DIM>(dext, daxn){}
+    RadialDiffusionTensor(double dext, double daxn, const Point<DIM> &radial_center) :
+        DiffusionTensor<DIM>(dext, daxn), radial_center(radial_center) {}
 
-    virtual void set_mass_center(const Point<DIM> &_mass_center) override {
-        mass_center=_mass_center;
-    }
 
 protected:
     Tensor<1,DIM> computeFiber(const Point<DIM> &p) const override {
         Tensor<1,DIM> fiber_n;
         for(int i = 0; i < DIM;i++) {
-            fiber_n[i] = (p[i]-mass_center[i])/(p.distance(mass_center) + 1.e-6);
+            fiber_n[i] = (p[i]-radial_center[i])/(p.distance(radial_center) + 1.e-6);
         }
         return fiber_n;
     }
 
 private:
-    Point<DIM> mass_center;
+    const Point<DIM> radial_center;
 };
 
 #endif
