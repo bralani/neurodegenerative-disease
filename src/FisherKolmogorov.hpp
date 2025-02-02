@@ -56,7 +56,7 @@ public:
   class FunctionU0 : public Function<dim>
   {
 
-  static constexpr double ray_max = 0.1;
+  static constexpr double ray_max = 0.05;
   static constexpr double concentration = 1.0;
 
   public:

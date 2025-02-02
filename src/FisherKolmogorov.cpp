@@ -210,7 +210,7 @@ FisherKolmogorov::assemble_system()
 void
 FisherKolmogorov::solve_linear_system()
 {
-  SolverControl solver_control(1000, 1e-6 * residual_vector.l2_norm());
+  SolverControl solver_control(10000, 1e-6 * residual_vector.l2_norm());
 
   //SolverCG<TrilinosWrappers::MPI::Vector> solver(solver_control);
   SolverGMRES<TrilinosWrappers::MPI::Vector> solver(solver_control);
@@ -236,7 +236,7 @@ FisherKolmogorov::solve_newton()
       assemble_system();
       residual_norm = residual_vector.l2_norm();
 
-      pcout << "  Newton iteration " << n_iter << "/" << n_max_iters
+      pcout << "  Newton iteration " << n_iter+1 << "/" << n_max_iters
             << " - ||r|| = " << std::scientific << std::setprecision(6)
             << residual_norm << std::flush;
 

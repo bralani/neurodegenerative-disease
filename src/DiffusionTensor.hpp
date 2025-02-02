@@ -73,4 +73,44 @@ private:
     const Point<DIM> radial_center;
 };
 
+class CircumferentialDiffusionTensor : public DiffusionTensor<2> {
+public:
+    CircumferentialDiffusionTensor(double dext, double daxn, const Point<2> &origin) :
+        DiffusionTensor<2>(dext, daxn), origin(origin) {}
+
+
+protected:
+    Tensor<1,2> computeFiber(const Point<2> &p) const override {
+        double dist = p.distance(origin);
+        Tensor<1,2> fiber_n;
+        fiber_n[0]=-(p[2] - origin[1])/(dist + 1e-6); /*y*/
+        fiber_n[1]=(p[1] - origin[0])/(dist + 1e-6); /*z*/
+        return fiber_n;
+    }
+
+private:
+    const Point<2> origin;
+};
+
+class CylindricalDiffusionTensor : public DiffusionTensor<3> {
+public:
+    CylindricalDiffusionTensor(double dext, double daxn, const Point<2> &origin) :
+        DiffusionTensor<3>(dext, daxn), origin(origin) {}
+
+
+protected:
+    Tensor<1,3> computeFiber(const Point<3> &p) const override {
+        Point<2> proj_yz(p[1]/*y*/,p[2]/*z*/);
+        double dist = proj_yz.distance(origin);
+        Tensor<1,3> fiber_n;
+        fiber_n[0]=0; /*x*/
+        fiber_n[1]=-(p[2] - origin[1])/(dist + 1e-6); /*y*/
+        fiber_n[2]=(p[1] - origin[0])/(dist + 1e-6); /*z*/
+        return fiber_n;
+    }
+
+private:
+    const Point<2> origin;
+};
+
 #endif
