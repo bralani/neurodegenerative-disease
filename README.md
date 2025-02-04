@@ -1,6 +1,4 @@
-## The Problem
-
-## Project 5: Fisher-Kolmogorov Equation for Neurodegenerative Diseases
+## Fisher-Kolmogorov Equation for Neurodegenerative Diseases
 
 The Fisher-Kolmogorov equation describes the spread of misfolded proteins in the brain, which is associated with neurodegenerative diseases. The equation is given by:
 
