@@ -128,7 +128,7 @@ The following are all the available parameters and their descriptions
   Example: `T 11.1`
 
 - **dt:**  
-  The `dt` parameter (or `deltaT`) is the time step size.  
+  The `dt` parameter is the time step size.  
   Example: `dt 1.2`
 
 - **alpha:**  
@@ -136,16 +136,16 @@ The following are all the available parameters and their descriptions
   Example: `alpha 1.55`
 
 - **r:**  
-  The `r` parameter is an integer that represent the degrees for the finite elements basis functions. 
+  The `r` parameter is an integer that represent the degree for the finite elements basis functions. 
   Example: `r 1`
 
 - **mass-center:**  
-  The `mass-center` parameter defines a point were the initial concentration of protein is centered.  
+  The `mass-center` parameter defines a point where the initial concentration of protein is centered.  
   The following numbers are the coordinates. 
   Example (3D): `mass-center 2 3 4`
 
 - **origin:**  
-  Used in the cylindrical diffusion tensor model. The `origin` parameter defines a 2D point on the YZ plane where the axis of the cylindrical meets the plane. 
+  Used in the cylindrical diffusion tensor model. The `origin` parameter defines a 2D point on the YZ plane where the axis of the cylinder meets the plane. 
   Example: `origin 1 2`
 
 - **radial-center:**  
