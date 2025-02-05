@@ -34,6 +34,7 @@ The diffusion tensor $D$ is computed as follows:
 $$
 D = d_{ext} \mathbf{I} + d_{axn} \mathbf{n} \otimes \mathbf{n},
 $$
+
 Where
 - **$d_{ext}$** is the scalar value related to the anisotropic diffusion
 - **$d_{axn}$** is the scalar value related to the isotropic diffusion
@@ -112,6 +113,9 @@ diffusion RADIAL
 ```
 
 The following are all the available parameters and their descriptions
+- **mesh_file:**  
+  The `mesh_file` allows to specify the name of the file that contains the mesh that needs to be processed.  
+  Example: `mesh_file ../mesh/mesh-cube-5.msh`
 
 - **dext:**  
   The `dext` parameter represents the anistropic diffusion coefficient.  

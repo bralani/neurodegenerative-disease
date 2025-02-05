@@ -15,7 +15,10 @@ int main(int argc, char *argv[]) {
     Point<2> origin = {0,-0.4};
     Point<DIM> radial_center = {0, 5, 0};
 
-    std::string line,w,diffusion="CYLINDRICAL";
+    std::string line,
+                w,
+                diffusion="CYLINDRICAL",
+                mesh_file_name="../mesh/brain-3D-scaled.msh";
     std::ifstream f("./config.txt");
     if (f.good()) {
         while (std::getline(f, line)) {
@@ -23,7 +26,13 @@ int main(int argc, char *argv[]) {
             iss >> w;
             if (w == "r") {
                 iss >> r;
-            } else if (w == "dext") {
+            }  else if (w == "mesh_file"){
+                // char c;
+                // iss >> c;
+                std::string s(std::istreambuf_iterator<char>(iss), {});
+                mesh_file_name=s;
+                mesh_file_name.erase(0,1);
+            }else if (w == "dext") {
                 iss >> dext;
             } else if (w == "daxn") {
                 iss >> daxn;
@@ -64,19 +73,20 @@ int main(int argc, char *argv[]) {
     std::cout << "r             = " << r << "\n";
     std::cout << "diffusion     = " << diffusion << "\n";
     std::cout << "mass_center   = " << mass_center << "\n";
-    std::cout << "origin        = " << origin << "\n";
-    std::cout << "radial_center = " << radial_center << "\n";
+    if(diffusion == "CYLINDRICAL") std::cout << "origin        = " << origin << "\n";
+    if(diffusion == "RADIAL") std::cout << "radial_center = " << radial_center << "\n";
+    std::cout << "mesh_file     = " << mesh_file_name << "\n";
     std::cout << "===============================================" << std::endl;
 
     if (diffusion == "RADIAL") {
         RadialDiffusionTensor<DIM> diffusionTensor(dext, daxn, radial_center);
-        FisherKolmogorov problem("../mesh/brain-3D-scaled.msh",r,T,deltaT,diffusionTensor,alpha,mass_center);
+        FisherKolmogorov problem(mesh_file_name,r,T,deltaT,diffusionTensor,alpha,mass_center);
         problem.setup();
         problem.solve();
     }
     else if(diffusion == "CYLINDRICAL") {
         CylindricalDiffusionTensor diffusionTensor(dext, daxn, origin);
-        FisherKolmogorov problem("../mesh/brain-3D-scaled.msh",r,T,deltaT,diffusionTensor,alpha,mass_center);
+        FisherKolmogorov problem(mesh_file_name,r,T,deltaT,diffusionTensor,alpha,mass_center);
         problem.setup();
         problem.solve();
     }
