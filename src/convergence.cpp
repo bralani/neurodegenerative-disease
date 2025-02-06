@@ -43,9 +43,10 @@ main(int argc, char *argv[])
       errors_H1_h.push_back(problem.compute_error(VectorTools::H1_norm));
     }
 
-
+  // with p > 2, our pc give us a segmentation fault (probably due to the memory allocation)
+  // increase p at your own risk
   const std::vector<double> p_orders = {
-    1, 2, 3};
+    1, 2};
   std::vector<double> errors_L2_p;
   std::vector<double> errors_H1_p;
   for (const auto &p : p_orders)
