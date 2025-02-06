@@ -4,16 +4,16 @@
 #include "DiffusionTensor.hpp"
 #include "FisherKolmogorov.hpp"
 
-#define DIM 3
+#define DIMENSION 3
 
 int main(int argc, char *argv[]) {
     Utilities::MPI::MPI_InitFinalize mpi_init(argc, argv);
 
     double dext{0.05}, daxn{0.30}, T{1}, deltaT{0.1}, alpha{2};
     int r = 1;
-    Point<DIM> mass_center = {0.0, 0.0, 0.25};
+    Point<DIMENSION> mass_center = {0.0, 0.0, 0.25};
     Point<2> origin = {0,-0.4};
-    Point<DIM> radial_center = {0, 5, 0};
+    Point<DIMENSION> radial_center = {0, 5, 0};
 
     std::string line,
                 w,
@@ -51,9 +51,9 @@ int main(int argc, char *argv[]) {
             } else if (w == "origin") {
                 iss  >> origin[0] >> origin[1];
             } else if (w == "mass-center") {
-                for(int i = 0; i  < DIM;i++) iss >> mass_center[i];
+                for(int i = 0; i  < DIMENSION;i++) iss >> mass_center[i];
             } else if (w == "radial-center") {
-                for(int i = 0; i  < DIM;i++) iss >> mass_center[i];
+                for(int i = 0; i  < DIMENSION;i++) iss >> mass_center[i];
             } else if (w.length()==0 || w[0]=='#') {
                 // ignore empty lines and comments
             } 
@@ -79,7 +79,7 @@ int main(int argc, char *argv[]) {
     std::cout << "===============================================" << std::endl;
 
     if (diffusion == "RADIAL") {
-        RadialDiffusionTensor<DIM> diffusionTensor(dext, daxn, radial_center);
+        RadialDiffusionTensor<DIMENSION> diffusionTensor(dext, daxn, radial_center);
         FisherKolmogorov problem(mesh_file_name,r,T,deltaT,diffusionTensor,alpha,mass_center);
         problem.setup();
         problem.solve();

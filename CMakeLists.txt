@@ -42,5 +42,16 @@ set(SOURCES
 )
 
 add_executable(ngd ${SOURCES})
+target_compile_definitions(ngd PRIVATE CONVERGENCE_TEST=0)
 deal_ii_setup_target(ngd)
-# 
+
+
+set(SOURCES
+    src/convergence.cpp
+    src/FisherKolmogorov.cpp
+    src/DiffusionTensor.hpp
+)
+
+add_executable(convergence ${SOURCES})
+target_compile_definitions(convergence PRIVATE CONVERGENCE_TEST=1)
+deal_ii_setup_target(convergence)

@@ -193,6 +193,10 @@ FisherKolmogorov::assemble_system()
                                   (1 - solution_loc[q])*
                                   fe_values.shape_value(i,q)*
                                   fe_values.JxW(q);
+
+              // Forcing term.
+              cell_residual(i) +=
+                f_loc * fe_values.shape_value(i, q) * fe_values.JxW(q);
                                   
             }
         }
@@ -315,4 +319,29 @@ FisherKolmogorov::solve()
 
       pcout << std::endl;
     }
+}
+//
+double
+FisherKolmogorov::compute_error(const VectorTools::NormType &norm_type)
+{
+  FE_SimplexP<dim> fe_linear(1);
+  MappingFE        mapping(fe_linear);
+
+  const QGaussSimplex<dim> quadrature_error = QGaussSimplex<dim>(r + 2);
+
+  exact_solution.set_time(time);
+
+  Vector<double> error_per_cell;
+  VectorTools::integrate_difference(mapping,
+                                    dof_handler,
+                                    solution,
+                                    exact_solution,
+                                    error_per_cell,
+                                    quadrature_error,
+                                    norm_type);
+
+  const double error =
+    VectorTools::compute_global_error(mesh, error_per_cell, norm_type);
+
+  return error;
 }

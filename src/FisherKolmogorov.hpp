@@ -45,10 +45,16 @@ public:
   {
   public:
     virtual double
-    value(const Point<dim> & /*p*/,
+    value(const Point<dim> & p,
           const unsigned int /*component*/ = 0) const override
     {
-      return 0.0;
+      if(CONVERGENCE_TEST) {
+        double c_val = std::cos(M_PI * p[0]) * std::cos(M_PI * p[1]) * std::cos(M_PI * p[2]) * std::exp(-get_time());
+        return (3 * M_PI * M_PI - 1) * c_val - 0.1 * c_val * (1 - c_val);
+      }
+      else {
+        return 0.0;
+      }
     }
   };
 
@@ -76,6 +82,38 @@ public:
     }
   private:
     Point<dim> _mass_center;
+  };
+
+
+  // Exact solution.
+  class ExactSolution : public Function<dim>
+  {
+  public:
+    virtual double
+    value(const Point<dim> &p,
+          const unsigned int /*component*/ = 0) const override
+    {
+      return std::cos(M_PI * p[0]) * std::cos(M_PI * p[1]) * std::cos(M_PI * p[2]) * std::exp(-get_time());
+
+    }
+
+    virtual Tensor<1, dim>
+    gradient(const Point<dim> &p,
+             const unsigned int /*component*/ = 0) const override
+    {
+      Tensor<1, dim> result;
+
+      // duex / dx
+      result[0] = -M_PI * std::sin(M_PI * p[0]) * std::cos(M_PI * p[1]) * std::cos(M_PI * p[2]) * std::exp(-get_time());
+
+      // duex / dy
+      result[1] = -M_PI * std::cos(M_PI * p[0]) * std::sin(M_PI * p[1]) * std::cos(M_PI * p[2]) * std::exp(-get_time());
+
+      // duex / dz
+      result[2] = -M_PI * std::cos(M_PI * p[0]) * std::cos(M_PI * p[1]) * std::sin(M_PI * p[2]) * std::exp(-get_time());
+
+      return result;
+    }
   };
 
   // Constructor. We provide the final time, time step Delta t and theta method
@@ -107,6 +145,11 @@ public:
   // Solve the problem.
   void
   solve();
+
+
+  // Compute the error.
+  double
+  compute_error(const VectorTools::NormType &norm_type);
 
 protected:
   // Assemble the tangent problem.
@@ -140,6 +183,9 @@ protected:
 
   // Forcing term.
   ForcingTerm forcing_term;
+
+  // Exact solution.
+  ExactSolution exact_solution;
 
   // Initial conditions.
   FunctionU0 u_0;
