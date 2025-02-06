@@ -32,19 +32,19 @@ The goal of this project is to implement a numerical solver for the Fisher-Kolmo
 The diffusion tensor $D$ is computed as follows:
 
 $$
-D = d_{ext} \mathbf{I} + d_{axn} \mathbf{n} \otimes \mathbf{n},
+D = d_{ext} \mathbf{I} + d_{axn} \mathbf{w} \otimes \mathbf{w},
 $$
 
 Where
 - **$d_{ext}$** is the scalar value related to the anisotropic diffusion
 - **$d_{axn}$** is the scalar value related to the isotropic diffusion
 - **$I$** is the identity matrix
-- **$n$** is the vector value assumed by the fiber field in a particular point of the domain 
+- **$w$** is the vector value assumed by the fiber field in a particular point of the domain 
 
 ### Domain
 The computational domain $\Omega$ can be:
 - **Idealized** (e.g., a simple 2D or 3D shape like a square or sphere).
-- **Realistic** (based on actual brain structures, as suggested in reference [13]).
+- **Realistic** (based on actual brain structures, as suggested).
 
 A sample realistic mesh can be downloaded at the following link:  
 [Mesh file (STL format)](https://polimi365-my.sharepoint.com/:u:/g/personal/10461512_polimi_it/EY9ZQp27JArvbXLRPljhNCB-wJ5tPZLlCf0_409EYbtg?e=ClaIRH). The mesh requires preprocessing using **Gmsh**.
